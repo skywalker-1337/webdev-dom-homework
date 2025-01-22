@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<body>
   <head>
     <title>Проект "Комменты"</title>
     <meta charset="utf-8" />
@@ -8,7 +8,7 @@
 
   <body>
     <div class="container">
-      <ul class="comments">
+      <ul class="comments" id="comments-list">
         <li class="comment">
           <div class="comment-header">
             <div>Глеб Фокин</div>
@@ -44,28 +44,76 @@
           </div>
         </li>
       </ul>
+
       <div class="add-form">
         <input
           type="text"
+          id="name"
           class="add-form-name"
           placeholder="Введите ваше имя"
         />
         <textarea
-          type="textarea"
+          id="comment-text"
           class="add-form-text"
           placeholder="Введите ваш коментарий"
           rows="4"
         ></textarea>
         <div class="add-form-row">
-          <button class="add-form-button">Написать</button>
+          <button id="add-comment" class="add-form-button">Написать</button>
         </div>
       </div>
     </div>
   </body>
 
   <script>
-    "use strict";
-    // Код писать здесь
-    console.log("It works!");
-  </script>
+document.addEventListener("DOMContentLoaded", function () {
+  const nameInput = document.getElementById("name");
+  const commentInput = document.getElementById("comment-text");
+  const addButton = document.getElementById("add-comment");
+  const commentsList = document.getElementById("comments-list");
+
+  function addComment() {
+    const name = nameInput.value.trim();
+    const commentText = commentInput.value.trim();
+
+    if (name && commentText) {
+
+      const currentDate = new Date().toLocaleDateString();
+
+      const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newCommentHTML = `
+        <li class="comment">
+          <div class="comment-header">
+            <div>${name}</div>
+            <div>${currentDate} ${currentTime}</div> <!-- Дата и время (день.месяц.год часы:минуты) -->
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              ${commentText}
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">0</span>
+              <button class="like-button"></button>
+            </div>
+          </div>
+        </li>
+      `;
+
+      commentsList.innerHTML += newCommentHTML;
+
+      nameInput.value = '';
+      commentInput.value = '';
+    } else {
+      alert("Пожалуйста, заполните все поля!");
+    }
+  }
+
+  addButton.addEventListener("click", addComment);
+});
+</script>
+</body>
 </html>
+
