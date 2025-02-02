@@ -1,119 +1,120 @@
 <!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Проект "Комменты"</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 <body>
-  <head>
-    <title>Проект "Комменты"</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+  <div class="container">
+    <ul class="comments" id="comments-list"></ul>
 
-  <body>
-    <div class="container">
-      <ul class="comments" id="comments-list">
-        <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li>
-      </ul>
-
-      <div class="add-form">
-        <input
-          type="text"
-          id="name"
-          class="add-form-name"
-          placeholder="Введите ваше имя"
-        />
-        <textarea
-          id="comment-text"
-          class="add-form-text"
-          placeholder="Введите ваш коментарий"
-          rows="4"
-        ></textarea>
-        <div class="add-form-row">
-          <button id="add-comment" class="add-form-button">Написать</button>
-        </div>
+    <div class="add-form">
+      <input type="text" id="name" class="add-form-name" placeholder="Введите ваше имя" />
+      <textarea id="comment-text" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
+      <div class="add-form-row">
+        <button id="add-comment" class="add-form-button">Написать</button>
       </div>
     </div>
-  </body>
+  </div>
 
   <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const nameInput = document.getElementById("name");
-  const commentInput = document.getElementById("comment-text");
-  const addButton = document.getElementById("add-comment");
-  const commentsList = document.getElementById("comments-list");
+    document.addEventListener("DOMContentLoaded", function () {
+      const nameInput = document.getElementById("name");
+      const commentInput = document.getElementById("comment-text");
+      const addButton = document.getElementById("add-comment");
+      const commentsList = document.getElementById("comments-list");
 
-  function addComment() {
-    const name = nameInput.value.trim();
-    const commentText = commentInput.value.trim();
+      let commentsData = [
+        {
+          name: "Глеб Фокин",
+          date: "12.02.22 12:18",
+          text: "Это будет первый комментарий на этой странице",
+          likes: 3,
+          liked: false
+        },
+        {
+          name: "Варвара Н.",
+          date: "13.02.22 19:22",
+          text: "Мне нравится как оформлена эта страница! ❤",
+          likes: 75,
+          liked: true
+        }
+      ];
 
-    if (name && commentText) {
+      function renderComments() {
+        commentsList.innerHTML = "";
+        commentsData.forEach((comment, index) => {
+          const currentDate = new Date().toLocaleDateString();
+          const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      const currentDate = new Date().toLocaleDateString();
+          const likeButtonClass = comment.liked ? "-active-like" : "";
+          
+          const newCommentHTML = `
+            <li class="comment">
+              <div class="comment-header">
+                <div>${comment.name}</div>
+                <div>${currentDate} ${currentTime}</div>
+              </div>
+              <div class="comment-body">
+                <div class="comment-text">
+                  ${comment.text}
+                </div>
+              </div>
+              <div class="comment-footer">
+                <div class="likes">
+                  <span class="likes-counter">${comment.likes}</span>
+                  <button class="like-button ${likeButtonClass}" data-index="${index}"></button>
+                </div>
+              </div>
+            </li>
+          `;
+          commentsList.innerHTML += newCommentHTML;
+        });
+      }
 
-      const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      function addComment() {
+        const name = nameInput.value.trim();
+        const commentText = commentInput.value.trim();
 
-      const newCommentHTML = `
-        <li class="comment">
-          <div class="comment-header">
-            <div>${name}</div>
-            <div>${currentDate} ${currentTime}</div> <!-- Дата и время (день.месяц.год часы:минуты) -->
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              ${commentText}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">0</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-      `;
+        if (name && commentText) {
+          const newComment = {
+            name: name,
+            date: new Date().toLocaleDateString(),
+            text: commentText,
+            likes: 0,
+            liked: false
+          };
+          commentsData.push(newComment);
+          renderComments();
 
-      commentsList.innerHTML += newCommentHTML;
+          nameInput.value = '';
+          commentInput.value = '';
+        } else {
+          alert("Пожалуйста, заполните все поля!");
+        }
+      }
 
-      nameInput.value = '';
-      commentInput.value = '';
-    } else {
-      alert("Пожалуйста, заполните все поля!");
-    }
-  }
+      function toggleLike(event) {
+        const index = event.target.getAttribute("data-index");
+        if (index !== null) {
+          const comment = commentsData[index];
+          comment.liked = !comment.liked;
+          comment.likes = comment.liked ? comment.likes + 1 : comment.likes - 1;
+          renderComments();
+        }
+      }
 
-  addButton.addEventListener("click", addComment);
-});
-</script>
+      addButton.addEventListener("click", addComment);
+      commentsList.addEventListener("click", function (event) {
+        if (event.target.classList.contains("like-button")) {
+          toggleLike(event);
+        }
+      });
+
+      renderComments();
+    });
+  </script>
 </body>
 </html>
-
