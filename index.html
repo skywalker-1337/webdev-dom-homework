@@ -43,6 +43,12 @@
         }
       ];
 
+      function decodeHTML(text) {
+        const textarea = document.createElement("textarea");
+        textarea.innerHTML = text;
+        return textarea.value;
+      }
+
       function renderComments() {
         commentsList.innerHTML = "";
         commentsData.forEach((comment, index) => {
@@ -52,14 +58,14 @@
           const likeButtonClass = comment.liked ? "-active-like" : "";
           
           const newCommentHTML = `
-            <li class="comment">
+            <li class="comment" data-index="${index}">
               <div class="comment-header">
                 <div>${comment.name}</div>
                 <div>${currentDate} ${currentTime}</div>
               </div>
               <div class="comment-body">
                 <div class="comment-text">
-                  ${comment.text}
+                  ${decodeHTML(comment.text)}
                 </div>
               </div>
               <div class="comment-footer">
@@ -74,9 +80,28 @@
         });
       }
 
+      function handleCommentClick(event) {
+        const commentElement = event.target.closest('.comment');
+        if (commentElement && !event.target.classList.contains("like-button")) {
+          const index = commentElement.getAttribute("data-index");
+          const comment = commentsData[index];
+
+          nameInput.value = `Ответ на ${comment.name}:`;
+          commentInput.value = `> ${decodeHTML(comment.text)}`;
+        }
+      }
+
+      function escapeHTML(text) {
+        return text.replaceAll('&', '&amp;')
+                   .replaceAll('<', '&lt;')
+                   .replaceAll('>', '&gt;')
+                   .replaceAll('"', '&quot;')
+                   .replaceAll("'", '&#039;');
+      }
+
       function addComment() {
-        const name = nameInput.value.trim();
-        const commentText = commentInput.value.trim();
+        const name = escapeHTML(nameInput.value.trim());
+        const commentText = escapeHTML(commentInput.value.trim());
 
         if (name && commentText) {
           const newComment = {
@@ -110,6 +135,8 @@
       commentsList.addEventListener("click", function (event) {
         if (event.target.classList.contains("like-button")) {
           toggleLike(event);
+        } else {
+          handleCommentClick(event);
         }
       });
 
