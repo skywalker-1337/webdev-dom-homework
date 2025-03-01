@@ -1,31 +1,31 @@
-import { commentsData, addNewComment } from "./comments.js";
+import { commentsData, addNewComment, fetchComments } from "./comments.js";
 import { renderComments } from "./render.js";
 import { escapeHTML, decodeHTML } from "./utils.js";
 
-export function addComment() {
+export async function addComment() {
   const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
 
   const name = escapeHTML(nameInput.value.trim());
   const commentText = escapeHTML(commentInput.value.trim());
 
-  if (name && commentText) {
-    const newComment = {
-      name: name,
-      date: new Date().toLocaleDateString(),
-      text: commentText,
-      likes: 0,
-      liked: false,
-    };
-
-    addNewComment(newComment);
-    renderComments();
-
-    nameInput.value = "";
-    commentInput.value = "";
-  } else {
-    alert("Пожалуйста, заполните все поля!");
+  if (name.length < 3 || commentText.length < 3) {
+    alert("Имя и комментарий должны содержать минимум 3 символа.");
+    return;
   }
+
+  const newComment = {
+    name,
+    text: commentText,
+    likes: 0,
+    liked: false,
+  };
+
+  await addNewComment(newComment);
+  renderComments();
+
+  nameInput.value = "";
+  commentInput.value = "";
 }
 
 export function handleCommentClick(event) {
@@ -51,3 +51,4 @@ export function toggleLike(event) {
     renderComments();
   }
 }
+
