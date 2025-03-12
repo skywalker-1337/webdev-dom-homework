@@ -45,5 +45,5 @@ export async function addNewComment(comment) {
     console.error("Ошибка добавления комментария:", error);
     alert(error.message);
   }
-}
+};
 

@@ -32,6 +32,5 @@ export function renderComments() {
     `;
     commentsList.innerHTML += newCommentHTML;
   });
-}
-//for mew commit
+};
 

@@ -49,6 +49,5 @@ export function toggleLike(event) {
     comment.liked = !comment.liked;
     comment.likes = comment.liked ? comment.likes + 1 : comment.likes - 1;
     renderComments();
-  }
+  };
 }
-
