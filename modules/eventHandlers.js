@@ -1,10 +1,11 @@
 import { commentsData, addNewComment, fetchComments } from "./comments.js";
-import { renderComments } from "./render.js";
+import { renderComments, showAddingComment, hideAddingComment } from "./render.js";
 import { escapeHTML, decodeHTML } from "./utils.js";
 
 export async function addComment() {
   const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
+  const addButton = document.getElementById("add-comment"); 
 
   const name = escapeHTML(nameInput.value.trim());
   const commentText = escapeHTML(commentInput.value.trim());
@@ -21,11 +22,21 @@ export async function addComment() {
     liked: false,
   };
 
-  await addNewComment(newComment);
-  renderComments();
+  showAddingComment();
+  addButton.disabled = true; 
 
-  nameInput.value = "";
-  commentInput.value = "";
+  try {
+    await addNewComment(newComment);
+    renderComments();
+  } catch (error) {
+    console.error("Ошибка добавления комментария:", error);
+    alert(error.message);
+  } finally {
+    hideAddingComment();
+    addButton.disabled = false; 
+    nameInput.value = "";
+    commentInput.value = "";
+  }
 }
 
 export function handleCommentClick(event) {
@@ -49,5 +60,7 @@ export function toggleLike(event) {
     comment.liked = !comment.liked;
     comment.likes = comment.liked ? comment.likes + 1 : comment.likes - 1;
     renderComments();
-  };
+  }
 }
+
+

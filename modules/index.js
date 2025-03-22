@@ -1,10 +1,16 @@
-import { commentsData, fetchComments } from "./comments.js";
-import { renderComments } from "./render.js";
+import { fetchComments } from "./comments.js";
+import { renderComments, hideLoadingComments } from "./render.js";
 import { addComment, handleCommentClick, toggleLike } from "./eventHandlers.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await fetchComments();
-  renderComments();
+  try {
+    await fetchComments();
+    renderComments();
+    hideLoadingComments();
+  } catch (error) {
+    console.error("Ошибка загрузки комментариев:", error);
+    hideLoadingComments();
+  }
 
   const addButton = document.getElementById("add-comment");
   const commentsList = document.getElementById("comments-list");
@@ -18,4 +24,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
 
