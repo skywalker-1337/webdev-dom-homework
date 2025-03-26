@@ -31,8 +31,10 @@ export function renderComments() {
   }
 
   commentsData.forEach((comment, index) => {
-    const currentDate = new Date().toLocaleDateString();
-    const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    // Форматируем дату из API
+    const dateObject = new Date(comment.date);
+    const formattedDate = dateObject.toLocaleDateString("ru-RU");
+    const formattedTime = dateObject.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 
     const likeButtonClass = comment.liked ? "-active-like" : "";
 
@@ -40,7 +42,7 @@ export function renderComments() {
       <li class="comment" data-index="${index}">
         <div class="comment-header">
           <div>${comment.name}</div>
-          <div>${currentDate} ${currentTime}</div>
+          <div>${formattedDate} ${formattedTime}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
@@ -60,4 +62,5 @@ export function renderComments() {
 
   hideLoadingComments();
 }
+
 
