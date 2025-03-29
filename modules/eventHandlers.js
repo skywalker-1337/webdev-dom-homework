@@ -5,37 +5,31 @@ import { escapeHTML, decodeHTML } from "./utils.js";
 export async function addComment() {
   const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
-  const addButton = document.getElementById("add-comment"); 
+  const addButton = document.getElementById("add-comment");
 
   const name = escapeHTML(nameInput.value.trim());
   const commentText = escapeHTML(commentInput.value.trim());
 
   if (name.length < 3 || commentText.length < 3) {
-    alert("Имя и комментарий должны содержать минимум 3 символа.");
+    alert("Имя и комментарий должны быть не короче 3 символов");
     return;
   }
 
-  const newComment = {
-    name,
-    text: commentText,
-    likes: 0,
-    liked: false,
-  };
+  const newComment = { name, text: commentText, likes: 0, liked: false };
 
   showAddingComment();
-  addButton.disabled = true; 
+  addButton.disabled = true;
 
   try {
     await addNewComment(newComment);
+    nameInput.value = "";
+    commentInput.value = "";
     renderComments();
   } catch (error) {
     console.error("Ошибка добавления комментария:", error);
-    alert(error.message);
   } finally {
     hideAddingComment();
-    addButton.disabled = false; 
-    nameInput.value = "";
-    commentInput.value = "";
+    addButton.disabled = false;
   }
 }
 
@@ -62,5 +56,6 @@ export function toggleLike(event) {
     renderComments();
   }
 }
+
 
 

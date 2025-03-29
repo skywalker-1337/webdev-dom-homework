@@ -6,11 +6,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await fetchComments();
     renderComments();
-    hideLoadingComments();
   } catch (error) {
-    console.error("Ошибка загрузки комментариев:", error);
-    hideLoadingComments();
+    alert(error.message);
   }
+  
 
   const addButton = document.getElementById("add-comment");
   const commentsList = document.getElementById("comments-list");
@@ -24,5 +23,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
 
 

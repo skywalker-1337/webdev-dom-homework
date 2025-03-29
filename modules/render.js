@@ -31,7 +31,6 @@ export function renderComments() {
   }
 
   commentsData.forEach((comment, index) => {
-    // Форматируем дату из API
     const dateObject = new Date(comment.date);
     const formattedDate = dateObject.toLocaleDateString("ru-RU");
     const formattedTime = dateObject.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
@@ -62,5 +61,6 @@ export function renderComments() {
 
   hideLoadingComments();
 }
+
 
 

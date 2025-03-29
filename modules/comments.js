@@ -7,10 +7,10 @@ export async function fetchComments() {
   try {
     const response = await fetch(API_URL);
     if (!response.ok) {
-      throw new Error("Ошибка загрузки комментариев");
+      throw new Error("Ошибка загрузки комментариев. Попробуйте позже.");
     }
+
     const data = await response.json();
-    console.log("Ответ API:", data);
 
     commentsData = data.comments.map((comment) => ({
       name: comment.author.name,
@@ -19,39 +19,56 @@ export async function fetchComments() {
       likes: comment.likes,
       liked: comment.isLiked,
     }));
-
-    console.log("Загруженные комментарии:", commentsData);
   } catch (error) {
+    if (error.message.includes("Failed to fetch")) {
+      alert("Кажется, у вас сломался интернет, попробуйте позже");
+    } else {
+      alert("Ошибка загрузки комментариев. Попробуйте позже.");
+    }
     console.error(error);
-    alert("Ошибка загрузки комментариев. Попробуйте позже.");
   }
 }
 
 export async function addNewComment(comment) {
-  if (!comment.name || !comment.text || comment.name.length < 3 || comment.text.length < 3) {
-    throw new Error("Имя и текст должны содержать минимум 3 символа.");
-  }
-
-  console.log("Отправка запроса в API:", JSON.stringify({ name: comment.name, text: comment.text }));
-
   try {
     const response = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ name: comment.name, text: comment.text }),
-    });
+  method: "POST",
+  body: JSON.stringify({
+    name: comment.name,
+    text: comment.text,
+  }),
+});
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Ошибка API: ${errorData.error}`);
+      console.log("Ошибка API:", errorData);
+
+      if (response.status === 400) {
+        throw new Error(`Ошибка 400: ${errorData.error || "Проверьте корректность введенных данных"}`);
+      }
+
+      if (response.status === 500) {
+        throw new Error("Сервер сломался, попробуй позже");
+      }
+
+      throw new Error(`Ошибка: ${response.status}`);
     }
 
     await fetchComments();
   } catch (error) {
-    console.error("Ошибка добавления комментария:", error);
-    alert(error.message);
+    if (error.message.includes("Failed to fetch")) {
+      alert("Кажется, у вас сломался интернет, попробуйте позже");
+    } else {
+      alert(error.message);
+    }
+    console.error("Ошибка при добавлении комментария:", error);
+    throw error;
   }
 }
-// for new branch
+
+
+
+
 
 
 
