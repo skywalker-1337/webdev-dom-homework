@@ -1,11 +1,14 @@
-const API_URL = "https://wedev-api.sky.pro/api/v1/nikoloz-kobaliya/comments";
-
+const API_URL = "https://wedev-api.sky.pro/api/v2/nikoloz-kobaliya";
 export let commentsData = [];
+export let token = null;
+export let userName = "";
 
 export async function fetchComments() {
-  console.log("Запрос комментариев отправлен...");
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(`${API_URL}/comments`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
     if (!response.ok) {
       throw new Error("Ошибка загрузки комментариев. Попробуйте позже.");
     }
@@ -13,58 +16,79 @@ export async function fetchComments() {
     const data = await response.json();
 
     commentsData = data.comments.map((comment) => ({
+      id: comment.id,
       name: comment.author.name,
-      date: comment.date, 
+      date: comment.date,
       text: comment.text,
       likes: comment.likes,
       liked: comment.isLiked,
     }));
   } catch (error) {
-    if (error.message.includes("Failed to fetch")) {
-      alert("Кажется, у вас сломался интернет, попробуйте позже");
-    } else {
-      alert("Ошибка загрузки комментариев. Попробуйте позже.");
-    }
     console.error(error);
+    alert(error.message);
   }
 }
 
 export async function addNewComment(comment) {
   try {
-    const response = await fetch(API_URL, {
-  method: "POST",
-  body: JSON.stringify({
-    name: comment.name,
-    text: comment.text,
-  }),
-});
+    const response = await fetch(`${API_URL}/comments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ text: comment.text }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.log("Ошибка API:", errorData);
-
       if (response.status === 400) {
-        throw new Error(`Ошибка 400: ${errorData.error || "Проверьте корректность введенных данных"}`);
+        throw new Error(errorData.error || "Проверьте корректность данных");
       }
-
-      if (response.status === 500) {
-        throw new Error("Сервер сломался, попробуй позже");
-      }
-
-      throw new Error(`Ошибка: ${response.status}`);
+      throw new Error("Серверная ошибка");
     }
 
     await fetchComments();
   } catch (error) {
-    if (error.message.includes("Failed to fetch")) {
-      alert("Кажется, у вас сломался интернет, попробуйте позже");
-    } else {
-      alert(error.message);
-    }
-    console.error("Ошибка при добавлении комментария:", error);
+    alert(error.message);
     throw error;
   }
 }
+
+export async function loginUser({ login, password }) {
+  const response = await fetch("https://wedev-api.sky.pro/api/user/login", {
+    method: "POST",
+    body: JSON.stringify({ login, password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка авторизации");
+  }
+
+  const data = await response.json();
+  token = data.user.token;
+  userName = data.user.name;
+}
+
+export async function registerUser({ login, password, name }) {
+  const response = await fetch("https://wedev-api.sky.pro/api/user", {
+    method: "POST",
+    body: JSON.stringify({ login, password, name }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка регистрации");
+  }
+
+  const data = await response.json();
+  token = data.user.token;
+  userName = data.user.name;
+}
+
+
+
+
 
 
 

@@ -1,28 +1,29 @@
-import { commentsData, addNewComment, fetchComments } from "./comments.js";
+import { commentsData, addNewComment, fetchComments, userName } from "./comments.js";
 import { renderComments, showAddingComment, hideAddingComment } from "./render.js";
 import { escapeHTML, decodeHTML } from "./utils.js";
 
 export async function addComment() {
-  const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
   const addButton = document.getElementById("add-comment");
 
-  const name = escapeHTML(nameInput.value.trim());
   const commentText = escapeHTML(commentInput.value.trim());
 
-  if (name.length < 3 || commentText.length < 3) {
-    alert("Имя и комментарий должны быть не короче 3 символов");
+  if (commentText.length < 3) {
+    alert("Комментарий должен быть не короче 3 символов");
     return;
   }
 
-  const newComment = { name, text: commentText, likes: 0, liked: false };
+  const newComment = {
+    text: commentText,
+    likes: 0,
+    liked: false,
+  };
 
   showAddingComment();
   addButton.disabled = true;
 
   try {
     await addNewComment(newComment);
-    nameInput.value = "";
     commentInput.value = "";
     renderComments();
   } catch (error) {
@@ -56,6 +57,7 @@ export function toggleLike(event) {
     renderComments();
   }
 }
+
 
 
 

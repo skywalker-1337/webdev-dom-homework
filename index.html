@@ -14,16 +14,30 @@
 
     <div id="adding-comment" class="loader" style="display: none;">Комментарий добавляется...</div>
 
-    <div class="add-form" id="add-form">
-      <input type="text" id="name" class="add-form-name" placeholder="Введите ваше имя" />
+    <div class="add-form" id="add-form" style="display: none;">
+      <input type="text" id="name" class="add-form-name" readonly />
       <textarea id="comment-text" class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
       <div class="add-form-row">
         <button id="add-comment" class="add-form-button">Написать</button>
       </div>
+    </div>
+
+    <div id="auth-form" style="display: none;">
+      <input type="text" id="login-input" placeholder="Введите логин" class="add-form-name" />
+      <input type="password" id="password-input" placeholder="Введите пароль" class="add-form-text" />
+      <div class="add-form-row">
+        <button id="login-button" class="add-form-button">Войти</button>
+      </div>
+    </div>
+
+    <div id="auth-link-container">
+      <a href="#" id="auth-link">Чтобы добавить комментарий, авторизуйтесь</a>
     </div>
   </div>
 
   <script type="module" src="modules/index.js"></script>
 </body>
 </html>
+
+
 
