@@ -1,64 +1,62 @@
-import { fetchComments, loginUser, userName } from "./comments.js";
-import { renderComments, hideLoadingComments } from "./render.js";
+import { fetchComments, token, userName } from "./comments.js";
+import { renderComments, showLoadingComments } from "./render.js";
 import { addComment, handleCommentClick, toggleLike } from "./eventHandlers.js";
+import { loginUser } from "./comments.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const addForm = document.getElementById("add-form");
-  const authForm = document.getElementById("auth-form");
-  const authLink = document.getElementById("auth-link-container");
+document.addEventListener("DOMContentLoaded", () => {
   const loginButton = document.getElementById("login-button");
-  const commentsList = document.getElementById("comments-list");
+  const logoutButton = document.getElementById("logout-button");
+  const authForm = document.getElementById("auth-form");
+  const addForm = document.getElementById("add-form");
+  const nameInput = document.getElementById("name");
 
-  await fetchComments();
-  renderComments();
+  const checkAuth = () => {
+    const savedToken = localStorage.getItem("token");
+    const savedUserName = localStorage.getItem("userName");
 
-  if (localStorage.getItem("token")) {
-    document.getElementById("add-form").style.display = "block";
-    document.getElementById("name").value = localStorage.getItem("name");
-    document.getElementById("auth-link-container").style.display = "none";
-  }
-
-  commentsList.addEventListener("click", (event) => {
-    if (event.target.classList.contains("like-button")) {
-      toggleLike(event);
+    if (savedToken && savedUserName) {
+      authForm.style.display = "none";
+      addForm.style.display = "block";
+      document.getElementById("logout-container").style.display = "block";
+      nameInput.value = savedUserName;
+      showLoadingComments();
+      fetchComments().then(renderComments);
     } else {
-      handleCommentClick(event);
+      authForm.style.display = "block";
+      addForm.style.display = "none";
+      document.getElementById("logout-container").style.display = "none";
     }
+  };
+
+  loginButton.addEventListener("click", async () => {
+    const login = document.getElementById("login-input").value;
+    const password = document.getElementById("password-input").value;
+    try {
+      await loginUser({ login, password });
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", userName);
+      checkAuth();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    checkAuth();
   });
 
   document.getElementById("add-comment").addEventListener("click", addComment);
+  document.getElementById("comments-list").addEventListener("click", toggleLike);
+  document.getElementById("comments-list").addEventListener("click", handleCommentClick);
 
-  document.getElementById("auth-link").addEventListener("click", () => {
-    authForm.style.display = "block";
-    authLink.style.display = "none";
-  });
-
-  loginButton.addEventListener("click", async () => {
-    const login = document.getElementById("login-input").value.trim();
-    const password = document.getElementById("password-input").value.trim();
-
-    if (!login || !password) {
-      alert("Введите логин и пароль");
-      return;
-    }
-
-    try {
-      await loginUser({ login, password });
-      localStorage.setItem("token", window.token);
-      localStorage.setItem("name", window.userName);
-
-      document.getElementById("name").value = window.userName;
-      document.getElementById("name").setAttribute("readonly", true);
-
-      authForm.style.display = "none";
-      addForm.style.display = "block";
-      await fetchComments();
-      renderComments();
-    } catch (error) {
-      alert(error.message);
-    }
-  });
+  checkAuth();
 });
+
+
+
+
 
 
 
