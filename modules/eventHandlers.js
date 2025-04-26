@@ -1,54 +1,56 @@
-import { commentsData, addNewComment, fetchComments } from "./comments.js";
-import { renderComments } from "./render.js";
+import { commentsData, addNewComment } from "./comments.js";
+import { renderComments, showAddingComment, hideAddingComment } from "./render.js";
 import { escapeHTML, decodeHTML } from "./utils.js";
 
 export async function addComment() {
-  const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
+  const addButton = document.getElementById("add-comment");
+  const text = escapeHTML(commentInput.value.trim());
 
-  const name = escapeHTML(nameInput.value.trim());
-  const commentText = escapeHTML(commentInput.value.trim());
-
-  if (name.length < 3 || commentText.length < 3) {
-    alert("Имя и комментарий должны содержать минимум 3 символа.");
+  if (text.length < 3) {
+    alert("Комментарий должен быть не менее 3 символов");
     return;
   }
 
-  const newComment = {
-    name,
-    text: commentText,
-    likes: 0,
-    liked: false,
-  };
+  showAddingComment();
+  addButton.disabled = true;
 
-  await addNewComment(newComment);
-  renderComments();
-
-  nameInput.value = "";
-  commentInput.value = "";
+  try {
+    await addNewComment({ text });
+    commentInput.value = "";
+    renderComments();
+  } catch (error) {
+    console.error("Ошибка при добавлении комментария:", error);
+  } finally {
+    hideAddingComment();
+    addButton.disabled = false;
+  }
 }
 
 export function handleCommentClick(event) {
+  const commentElement = event.target.closest(".comment");
   const nameInput = document.getElementById("name");
   const commentInput = document.getElementById("comment-text");
 
-  const commentElement = event.target.closest(".comment");
   if (commentElement && !event.target.classList.contains("like-button")) {
-    const index = commentElement.getAttribute("data-index");
+    const index = commentElement.dataset.index;
     const comment = commentsData[index];
-
-    nameInput.value = `Ответ на ${comment.name}:`;
+    nameInput.value = `Ответ на ${comment.name}`;
     commentInput.value = `> ${decodeHTML(comment.text)}`;
   }
 }
 
 export function toggleLike(event) {
-  const index = event.target.getAttribute("data-index");
-  if (index !== null) {
-    const comment = commentsData[index];
-    comment.liked = !comment.liked;
-    comment.likes = comment.liked ? comment.likes + 1 : comment.likes - 1;
-    renderComments();
-  }
+  if (!event.target.classList.contains("like-button")) return;
+  const index = event.target.dataset.index;
+  const comment = commentsData[index];
+  comment.liked = !comment.liked;
+  comment.likes += comment.liked ? 1 : -1;
+  renderComments();
 }
+
+
+
+
+
 

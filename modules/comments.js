@@ -1,49 +1,97 @@
-const API_URL = "https://wedev-api.sky.pro/api/v1/nikoloz-kobaliya/comments";
-
+const API_URL = "https://wedev-api.sky.pro/api/v2/nikoloz-kobaliya";
 export let commentsData = [];
+export let token = localStorage.getItem("token") || null;
+export let userName = localStorage.getItem("userName") || "";
 
 export async function fetchComments() {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(`${API_URL}/comments`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
     if (!response.ok) {
-      throw new Error("Ошибка загрузки комментариев");
+      throw new Error("Ошибка загрузки комментариев.");
     }
+
     const data = await response.json();
+
     commentsData = data.comments.map((comment) => ({
+      id: comment.id,
       name: comment.author.name,
-      date: new Date(comment.date).toLocaleDateString(),
+      date: comment.date,
       text: comment.text,
       likes: comment.likes,
       liked: comment.isLiked,
     }));
   } catch (error) {
-    console.error(error);
-    alert("Ошибка загрузки комментариев. Попробуйте позже.");
+    alert(error.message);
+    throw error;
   }
 }
 
 export async function addNewComment(comment) {
-  try {
-    if (!comment.name || !comment.text || comment.name.length < 3 || comment.text.length < 3) {
-      throw new Error("Имя и текст должны содержать минимум 3 символа.");
-    }
+  const response = await fetch(`${API_URL}/comments`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ text: comment.text }),
+  });
 
-    console.log("Отправка запроса в API:", JSON.stringify({ name: comment.name, text: comment.text }));
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ name: comment.name, text: comment.text }), 
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Ошибка API: ${errorData.error}`);
-    }
-
-    await fetchComments();
-  } catch (error) {
-    console.error("Ошибка добавления комментария:", error);
-    alert(error.message);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка добавления комментария");
   }
+
+  await fetchComments();
 }
+
+export async function loginUser({ login, password }) {
+  const response = await fetch("https://wedev-api.sky.pro/api/user/login", {
+    method: "POST",
+    body: JSON.stringify({ login, password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка авторизации");
+  }
+
+  const data = await response.json();
+  token = data.user.token;
+  userName = data.user.name;
+}
+
+export async function registerUser({ login, password, name }) {
+  const response = await fetch("https://wedev-api.sky.pro/api/user", {
+    method: "POST",
+    body: JSON.stringify({ login, password, name }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка регистрации");
+  }
+
+  const data = await response.json();
+  token = data.user.token;
+  userName = data.user.name;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
