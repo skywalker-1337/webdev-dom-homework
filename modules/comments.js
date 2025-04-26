@@ -62,6 +62,23 @@ export async function loginUser({ login, password }) {
   userName = data.user.name;
 }
 
+export async function registerUser({ login, password, name }) {
+  const response = await fetch("https://wedev-api.sky.pro/api/user", {
+    method: "POST",
+    body: JSON.stringify({ login, password, name }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Ошибка регистрации");
+  }
+
+  const data = await response.json();
+  token = data.user.token;
+  userName = data.user.name;
+}
+
+
 
 
 

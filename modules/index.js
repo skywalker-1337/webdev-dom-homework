@@ -1,10 +1,10 @@
-import { fetchComments, token, userName } from "./comments.js";
+import { fetchComments, token, userName, loginUser, registerUser } from "./comments.js";
 import { renderComments, showLoadingComments } from "./render.js";
 import { addComment, handleCommentClick, toggleLike } from "./eventHandlers.js";
-import { loginUser } from "./comments.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginButton = document.getElementById("login-button");
+  const registerButton = document.getElementById("register-button");
   const logoutButton = document.getElementById("logout-button");
   const authForm = document.getElementById("auth-form");
   const addForm = document.getElementById("add-form");
@@ -33,6 +33,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password-input").value;
     try {
       await loginUser({ login, password });
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", userName);
+      checkAuth();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  registerButton.addEventListener("click", async () => {
+    const login = document.getElementById("login-input").value;
+    const password = document.getElementById("password-input").value;
+    try {
+      await registerUser({ login, password, name: login });
       localStorage.setItem("token", token);
       localStorage.setItem("userName", userName);
       checkAuth();
